@@ -17,7 +17,7 @@ export  function getSomeMessage(): string {
     }
 
  export  async function fetchAllRepos(org) {
-      const octokit = new Octokit({auth:'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'});
+      const octokit = new Octokit({auth:''});
       const repos = [];
       let page = 1;
       console.log('Calling fetchAllRepos...')
@@ -61,7 +61,7 @@ export  function getSomeMessage(): string {
   }
 
   export  async function fetchAllPullRequests(org, repoName) {
-    const octokit = new Octokit({auth:'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'});
+    const octokit = new Octokit({auth:''});
     const pullRequests : PullRequest[] = [];
     //const pullRequests = [];
     let page = 1;
@@ -96,7 +96,7 @@ export  function getSomeMessage(): string {
 
 export function getRepos()
 {
-    const octokit = new Octokit({auth:'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'});
+    const octokit = new Octokit({auth:''});
     console.log('Repos..');
     octokit.rest.repos
     .listForOrg({
