@@ -8,6 +8,7 @@ import {
 } from '@backstage/core-components';
 import useAsync from 'react-use/lib/useAsync';
 import CanvasJSReact from '@canvasjs/react-charts';
+import moment from 'moment';
 
 var CanvasJS = CanvasJSReact.CanvasJS;
 var CanvasJSChart = CanvasJSReact.CanvasJSChart;
@@ -50,6 +51,9 @@ export const exampleUsers = {
   ],
 };
 
+const filter_reponame = 'di-superset-api';
+const filter_lastmanydays = 60;
+
 const useStyles = makeStyles({
   avatar: {
     height: 32,
@@ -78,6 +82,92 @@ type User = {
 type DenseTableProps = {
   users: User[];
 };
+
+// # start calculate avg PR cycle time by weekly
+interface PullRequest {
+  createdAt: string;
+  mergedAt: string;
+  origin: string;
+  repository: {
+    name: string;
+  };
+  state: {
+    detail: string;
+    category: string;
+  };
+  updatedAt: string;
+}
+
+interface PRTimeByWeek {
+  weekStartDate: string;
+  averageTime: number; // in milliseconds
+}
+
+// Calculate the difference in milliseconds between two dates
+const getTimeDifference = (start: Date, end: Date): number => end.getTime() - start.getTime();
+
+// Get the start of the week (Monday) for a given date
+const getStartOfWeek = (date: Date): Date => {
+  const start = new Date(date);
+  const day = start.getDay();
+  const diff = (day + 6) % 7; // Calculate difference to Monday
+  start.setDate(start.getDate() - diff);
+  start.setHours(0, 0, 0, 0);
+  return start;
+};
+
+const calculateAveragePRTimeByWeek = (prData: PullRequest[]): PRTimeByWeek[] => {
+  const now = new Date();
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(now.getDate() - filter_lastmanydays);
+  prData = prData.filter(pr => {
+    const createdAtDate = new Date(pr.createdAt);
+    return createdAtDate >= thirtyDaysAgo && createdAtDate <= now &&
+           pr.state.category === "Merged" && pr.repository.name == filter_reponame;
+  });
+
+  //prData = prData.filter(pr => pr.state.category === "Merged" && pr.repository.name == filter_reponame);
+  console.log('prData length after filter : ' + prData.length);
+
+  // Dictionary to store total times and counts for each week
+  const weekData: { [key: string]: { totalTime: number; count: number } } = {};
+
+  prData.forEach(pr => {
+    const createdAt = new Date(pr.createdAt);
+    const mergedAt = new Date(pr.mergedAt);
+    const timeDiff = getTimeDifference(createdAt, mergedAt);
+
+    const weekStart = getStartOfWeek(createdAt).toISOString();
+    
+    if (!weekData[weekStart]) {
+      weekData[weekStart] = { totalTime: 0, count: 0 };
+    }
+
+    weekData[weekStart].totalTime += timeDiff;
+    weekData[weekStart].count += 1;
+  });
+
+  // Define the number of milliseconds in a day
+  const millisecondsInDay: number = 1000 * 60 * 60 * 24;
+  // const differenceInDays: number = 
+  // Math.floor(differenceInMs / millisecondsInDay);
+
+  // Compute average time for each week
+  const result: PRTimeByWeek[] = Object.keys(weekData).map(weekStart => {
+    const { totalTime, count } = weekData[weekStart];
+    return {
+      weekStartDate:  moment(new Date(weekStart)).format('MMM DD, YYYY').toString(),
+      averageTime: roundToTwoDecimals(Math.floor(totalTime / millisecondsInDay)  / count),
+    };
+  });
+
+  return result;
+};
+
+const roundToTwoDecimals = (num: number): number => {
+  return Math.round(num * 100) / 100;
+};
+
 
 function GetDistinctRepos(responseData)
 {
@@ -113,6 +203,105 @@ function GetPRCountByRepo(sourceData)
    console.log('Length of Temp[] : ' + temp.length);
    console.log(datapoints);
    return datapoints;
+}
+
+function GeneratePRCountByRepoChart(prData)
+{
+  let temp1=   GetPRCountByRepo(prData.data.vcs_PullRequest);
+  console.log("Data by Repo: ");
+  console.log(temp1);
+  let chartData ={
+    title: {
+      text: "PR Count by Repo"
+    },
+    data: [
+    {
+      // Change type to "doughnut", "line", "splineArea", etc.
+      type: "column",
+      indexLabel: "{y}",
+      indexLabelPlacement: "outside",  
+      indexLabelOrientation: "horizontal",
+      dataPoints: temp1
+    }
+    ]
+  };
+  return chartData;
+}
+
+
+
+function GeneratePRCountByWeekChart(prData)
+{
+  let averageTimes = calculateAveragePRTimeByWeek(prData.data.vcs_PullRequest);
+  averageTimes =  averageTimes.sort((a, b) => {
+    const dateA = new Date(a.weekStartDate);
+    const dateB = new Date(b.weekStartDate);
+    return dateA.getTime() - dateB.getTime();
+  });
+  console.log("averageTimes by week : ");
+  console.log(averageTimes);
+
+    let datapoints = [] as datapoint[];
+  averageTimes.forEach(pr => {
+    datapoints.push({label: pr.weekStartDate, y: pr.averageTime });
+  });
+
+  let chartData ={
+    axisY:
+    {
+      title: "Days",
+    },
+    
+    title:{
+    text: "PR Cycle time by week"
+    },
+     data: [
+    {
+      type: "line",
+      dataPoints: datapoints
+    }
+    ],
+    indexLabel: "{y}", // Simple indexLabel
+    toolTip:{   
+			content: "{label}: {y} days"      
+		},
+   
+   
+  };
+  return chartData;
+}
+
+function calculateAvgPRCycleTime(prData)
+{
+  let totalNumberofDays = 0;
+  let totalMergedPRsCount = 0;
+  let temp =prData.data.vcs_PullRequest;
+  for (let i= 0; i<temp.length; i++) {
+    if (temp[i].state.category === 'Merged' ) {
+      let prCreatedDate = new Date(temp[i].createdAt);
+      let prMergedDate = new Date(temp[i].mergedAt);
+
+      // Calculate the difference in 
+      // milliseconds between the two dates
+      const differenceInMs: number = 
+      Math.abs(prMergedDate.getTime() - prCreatedDate.getTime());
+
+      // Define the number of milliseconds in a day
+      const millisecondsInDay: number = 1000 * 60 * 60 * 24;
+
+      // Calculate the difference in days by 
+      // dividing the difference in milliseconds by 
+      // milliseconds in a day
+      const differenceInDays: number = 
+      Math.floor(differenceInMs / millisecondsInDay);
+      totalNumberofDays += differenceInDays;
+      totalMergedPRsCount += 1;
+    }
+  }
+
+    let avgPRTime = totalNumberofDays/totalMergedPRsCount;
+    console.log('avgPRTime : ');
+    console.log(avgPRTime);
 }
 
 export const DenseTable = ({ users }: DenseTableProps) => {
@@ -180,6 +369,8 @@ export const ExampleFetchComponent = () => {
   // }, []);
 
   const { value, loading, error } = useAsync(async (): Promise<any> => {
+
+    //Fetch all repos
     const response = await fetch(
       "https://prod.api.faros.ai/graphs/default/graphql",  { 
           method: 'post', 
@@ -192,25 +383,11 @@ export const ExampleFetchComponent = () => {
         const prData = await response.json();
       console.log("API response : ");
       console.log(prData);
-    let temp1=   GetPRCountByRepo(prData.data.vcs_PullRequest);
-    console.log("Data by Repo: ");
-    console.log(temp1);
-    let chartData ={
-      title: {
-        text: "PR Count by Repo"
-      },
-      data: [
-      {
-        // Change type to "doughnut", "line", "splineArea", etc.
-        type: "column",
-        indexLabel: "{y}",
-        indexLabelPlacement: "outside",  
-        indexLabelOrientation: "horizontal",
-        dataPoints: temp1
-      }
-      ]
-    };
-    return chartData;
+
+      return GeneratePRCountByWeekChart(prData);
+
+    //   calculateAvgPRCycleTime(prData);
+    // return GeneratePRCountByRepoChart(prData);
     // Would use fetch in a real world example
    // return barChartData;
   }, []);
@@ -221,6 +398,7 @@ export const ExampleFetchComponent = () => {
     return <ResponseErrorPanel error={error} />;
   }
 
+
  // return <DenseTable users={value || []} />;
  return (
   <div className="App">
@@ -228,11 +406,11 @@ export const ExampleFetchComponent = () => {
        <table height="300px">
         <tbody>
             <tr>
+              {/* <td width="50%">
+               <CanvasJSChart options = {value} containerProps={{ width: "700px", height: "400px" }}  />
+              </td> */}
               <td width="50%">
-              <CanvasJSChart options = {value} containerProps={{ width: "700px", height: "400px" }}  />
-              </td>
-              <td width="50%">
-                
+               <CanvasJSChart options = {value} containerProps={{ width: "700px", height: "400px" }}  /> 
               </td>
             </tr>
         </tbody>
