@@ -52,7 +52,7 @@ export const exampleUsers = {
 };
 
 const filter_reponame = 'di-superset-api';
-const filter_lastmanydays = 60;
+const filter_lastmanydays = 30;
 
 const useStyles = makeStyles({
   avatar: {
@@ -110,20 +110,22 @@ const getTimeDifference = (start: Date, end: Date): number => end.getTime() - st
 const getStartOfWeek = (date: Date): Date => {
   const start = new Date(date);
   const day = start.getDay();
-  const diff = (day + 6) % 7; // Calculate difference to Monday
+  const diff = (day + 7) % 7; // Calculate difference to Monday
   start.setDate(start.getDate() - diff);
   start.setHours(0, 0, 0, 0);
   return start;
 };
+
+
 
 const calculateAveragePRTimeByWeek = (prData: PullRequest[]): PRTimeByWeek[] => {
   const now = new Date();
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(now.getDate() - filter_lastmanydays);
   prData = prData.filter(pr => {
-    const createdAtDate = new Date(pr.createdAt);
-    return createdAtDate >= thirtyDaysAgo && createdAtDate <= now &&
-           pr.state.category === "Merged" && pr.repository.name == filter_reponame;
+    const createdAtDate = new Date(pr.mergedAt);
+    return createdAtDate >= thirtyDaysAgo && createdAtDate <= now 
+           && pr.repository.name == filter_reponame;
   });
 
   //prData = prData.filter(pr => pr.state.category === "Merged" && pr.repository.name == filter_reponame);
@@ -134,10 +136,11 @@ const calculateAveragePRTimeByWeek = (prData: PullRequest[]): PRTimeByWeek[] => 
 
   prData.forEach(pr => {
     const createdAt = new Date(pr.createdAt);
-    const mergedAt = new Date(pr.mergedAt);
+    const mergedAt = ((pr.mergedAt == null || pr.mergedAt == undefined)? 
+                  new Date(pr.updatedAt) : new Date(pr.mergedAt));
     const timeDiff = getTimeDifference(createdAt, mergedAt);
 
-    const weekStart = getStartOfWeek(createdAt).toISOString();
+    const weekStart = getStartOfWeek(mergedAt).toISOString();
     
     if (!weekData[weekStart]) {
       weekData[weekStart] = { totalTime: 0, count: 0 };
@@ -157,7 +160,7 @@ const calculateAveragePRTimeByWeek = (prData: PullRequest[]): PRTimeByWeek[] => 
     const { totalTime, count } = weekData[weekStart];
     return {
       weekStartDate:  moment(new Date(weekStart)).format('MMM DD, YYYY').toString(),
-      averageTime: roundToTwoDecimals(Math.floor(totalTime / millisecondsInDay)  / count),
+      averageTime: Math.floor(totalTime / millisecondsInDay)  / count,
     };
   });
 
