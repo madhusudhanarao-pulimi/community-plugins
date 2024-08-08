@@ -67,6 +67,12 @@ type datapoint = {
   y: number;
 };
 
+type datapointWithX = {
+  label: string; 
+  x: number;
+  y: number;
+};
+
 type User = {
   gender: string; // "male"
   name: {
@@ -91,11 +97,13 @@ interface PullRequest {
   repository: {
     name: string;
   };
-  state: {
-    detail: string;
-    category: string;
-  };
+  state: State;
   updatedAt: string;
+}
+
+interface State {
+  detail: string;
+  category: string;
 }
 
 interface PRTimeByWeek {
@@ -116,17 +124,55 @@ const getStartOfWeek = (date: Date): Date => {
   return start;
 };
 
+interface CategoryCountItem {
+  category: string;
+  count: number;
+}
 
+const countByCategory = (data: PullRequest[]): CategoryCountItem[] => {
+  const categoryCountMap: { [key: string]: number } = data.reduce((accumulator, current) => {
+    const category = current.state.category;
 
-const calculateAveragePRTimeByWeek = (prData: PullRequest[]): PRTimeByWeek[] => {
+    if (!accumulator[category]) {
+      accumulator[category] = 0;
+    }
+
+    accumulator[category] += 1;
+
+    return accumulator;
+  }, {});
+
+  // Convert the categoryCountMap to an array of CategoryCountItem
+  return Object.entries(categoryCountMap).map(([category, count]) => ({
+    category,
+    count
+  }));
+};
+
+function applyFiltersForPRData(prData: PullRequest[])
+{
   const now = new Date();
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(now.getDate() - filter_lastmanydays);
   prData = prData.filter(pr => {
     const createdAtDate = new Date(pr.mergedAt);
-    return createdAtDate >= thirtyDaysAgo && createdAtDate <= now 
+    return createdAtDate >= thirtyDaysAgo && createdAtDate <= now
            && pr.repository.name == filter_reponame;
   });
+  return prData;
+}
+
+function applyRepoFilterForPRData(prData: PullRequest[])
+{
+  prData = prData.filter(pr => {
+    return  pr.repository.name == filter_reponame;
+  });
+  return prData;
+}
+
+
+
+const calculateAveragePRTimeByWeek = (prData: PullRequest[]): PRTimeByWeek[] => {
 
   //prData = prData.filter(pr => pr.state.category === "Merged" && pr.repository.name == filter_reponame);
   console.log('prData length after filter : ' + prData.length);
@@ -235,7 +281,7 @@ function GeneratePRCountByRepoChart(prData)
 
 function GeneratePRCountByWeekChart(prData)
 {
-  let averageTimes = calculateAveragePRTimeByWeek(prData.data.vcs_PullRequest);
+  let averageTimes = calculateAveragePRTimeByWeek(prData);
   averageTimes =  averageTimes.sort((a, b) => {
     const dateA = new Date(a.weekStartDate);
     const dateB = new Date(b.weekStartDate);
@@ -270,6 +316,40 @@ function GeneratePRCountByWeekChart(prData)
 		},
    
    
+  };
+  return chartData;
+}
+
+
+function GeneratePRCountByStatusChart(prData)
+{
+  const categoryCounts = countByCategory(prData);
+      console.log('Group by state: ');
+      console.log(categoryCounts);
+      let datapoints = [] as datapointWithX[];
+      let i = 0;
+      categoryCounts.forEach(pr => {
+        console.log( pr.category + ' : ' + pr.count);
+        let val = '${(categoryCounts as {[key: string]: number})[key]}';
+        let numVal = Number(val);
+        datapoints.push({label: pr.category, y: pr.count, x: i });
+        i += 1;
+      });
+   
+  let chartData = {
+    title:{
+      text: "PRs Count By State"
+    },
+    data: [
+
+    {
+      type: "column",
+      indexLabel: "{y}",
+      indexLabelPlacement: "outside",  
+      indexLabelOrientation: "horizontal",
+      dataPoints: datapoints
+    }
+    ]
   };
   return chartData;
 }
@@ -386,9 +466,16 @@ export const ExampleFetchComponent = () => {
         const prData = await response.json();
       console.log("API response : ");
       console.log(prData);
+     
+     let tempRepoData = applyRepoFilterForPRData(prData.data.vcs_PullRequest);
+      const categoryCounts = countByCategory(tempRepoData);
+      console.log('Group by state: ');
+      console.log(categoryCounts);
+      let prCountByStatusChart =  GeneratePRCountByStatusChart(tempRepoData);
 
-      return GeneratePRCountByWeekChart(prData);
-
+      let tempPRData = applyFiltersForPRData(prData.data.vcs_PullRequest);
+      let avgPRCycleTimeChart = GeneratePRCountByWeekChart(tempPRData);
+        return { avg: avgPRCycleTimeChart, state: prCountByStatusChart };
     //   calculateAvgPRCycleTime(prData);
     // return GeneratePRCountByRepoChart(prData);
     // Would use fetch in a real world example
@@ -409,12 +496,12 @@ export const ExampleFetchComponent = () => {
        <table height="300px">
         <tbody>
             <tr>
-              {/* <td width="50%">
-               <CanvasJSChart options = {value} containerProps={{ width: "700px", height: "400px" }}  />
-              </td> */}
               <td width="50%">
-               <CanvasJSChart options = {value} containerProps={{ width: "700px", height: "400px" }}  /> 
+               <CanvasJSChart options = {value.avg} containerProps={{ width: "700px", height: "400px" }}  /> 
               </td>
+              <td width="50%">
+               <CanvasJSChart options = {value.state} containerProps={{ width: "700px", height: "400px" }}  />
+              </td> 
             </tr>
         </tbody>
         
