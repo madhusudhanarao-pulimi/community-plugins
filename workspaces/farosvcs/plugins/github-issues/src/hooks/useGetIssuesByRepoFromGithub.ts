@@ -22,6 +22,39 @@ import {
   GithubIssuesByRepoOptions,
 } from '../api';
 
+
+
+// # start calculate avg PR cycle time by weekly
+export interface PullRequest {
+  createdAt: string;
+  mergedAt: string;
+  origin: string;
+  repository: {
+    name: string;
+  };
+  state: State;
+  updatedAt: string;
+}
+
+interface State {
+  detail: string;
+  category: string;
+}
+
+interface PRTimeByWeek {
+  weekStartDate: string;
+  averageTime: number; // in milliseconds
+}
+
+function applyRepoFilterForPRData(prData: PullRequest[], filter_reponame: string)
+{
+  prData = prData.filter(pr => {
+    return  pr.repository.name == filter_reponame;
+  });
+  return prData;
+}
+
+
 export const useGetIssuesByRepoFromGithub = (
   repos: Array<Repository>,
   itemsPerRepo: number,
@@ -30,7 +63,7 @@ export const useGetIssuesByRepoFromGithub = (
   const githubIssuesApi = useApi(githubIssuesApiRef);
 
   const {
-    value: issues,
+    value : PullRequest,
     loading: isLoading,
     retry,
   } = useAsyncRetry(async () => {
@@ -49,6 +82,9 @@ export const useGetIssuesByRepoFromGithub = (
       console.log(prData);
       console.log('repos');
       console.log(repos);
+      let repoFullName  = repos[0].name;
+      let repoName  = repoFullName.split('/')[1];
+      let pullrequestData = applyRepoFilterForPRData(prData.data.vcs_PullRequest, repoName);
 
     // if (repos.length > 0) {
     //   return await githubIssuesApi.fetchIssuesByRepoFromGithub(
@@ -57,9 +93,12 @@ export const useGetIssuesByRepoFromGithub = (
     //     options,
     //   );
     // }
+    return { isLoading, pullrequestData, retry };
 
-    return {};
+
+    //return {};
   }, [repos]);
 
-  return { isLoading, githubIssuesByRepo: issues, retry };
+  return { isLoading, prData: PullRequest, retry };
 };
+
