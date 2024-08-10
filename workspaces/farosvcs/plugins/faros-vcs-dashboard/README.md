@@ -26,15 +26,15 @@ After installation, the plugin can be used as a Card or as a Page.
 ```typescript
 import {
   GithubIssuesCard,
-  GithubIssuesPage,
+  VcsDashboardPage,
 } from '@backstage-community/plugin-github-issues';
 
 // To use as a page Plugin needs to be wrapped in EntityLayout.Route
-const RenderGitHubIssuesPage = () => (
+const RenderVcsDashboardPage = () => (
   <EntityLayoutWrapper>
     <EntityLayout.Route path="/" title="Overview">
       <EntityLayout.Route path="github-issues" title="GitHub Issues">
-        <GithubIssuesPage />
+        <VcsDashboardPage />
       </EntityLayout.Route>
     </EntityLayout.Route>
   </EntityLayoutWrapper>
@@ -56,7 +56,7 @@ const RenderGitHubIssuesCard = () => (
 
 ## Configuration
 
-Both `GithubIssuesPage` and `GithubIssuesCard` provide default configuration. It is ready to use out of the box.
+Both `VcsDashboardPage` and `GithubIssuesCard` provide default configuration. It is ready to use out of the box.
 However, you can configure the plugin with props:
 
 - `itemsPerPage: number = 10` - Issues in the list are paginated, number of issues on a single page is controlled with this prop

@@ -20,8 +20,7 @@ import IconButton from '@material-ui/core/IconButton';
 import { InfoCard, Progress } from '@backstage/core-components';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import { useEntityGithubRepositories } from '../../hooks/useEntityGithubRepositories';
-import { useGetIssuesByRepoFromGithub, PullRequest } from '../../hooks/useGetIssuesByRepoFromGithub';
-import { IssuesList } from './IssuesList';
+import { useGetIssuesByRepoFromGithub, PullRequest } from '../../hooks/useGetPullrequestsByRepoFromFaros';
 import { NoRepositoriesInfo } from './NoRepositoriesInfo';
 import type {
   GithubIssuesFilters,
@@ -253,7 +252,7 @@ function GeneratePRCountByWeekChart(prData)
 }
 
 
-export const GithubIssues = (props: GithubIssuesProps) => {
+export const VcsDashboard = (props: GithubIssuesProps) => {
   const { itemsPerPage = 10, itemsPerRepo = 40, filterBy, orderBy } = props;
 
   const { repositories } = useEntityGithubRepositories();

@@ -14,4 +14,4 @@
  * limitations under the License.
  */
 
-export { IssueCard } from './IssueCard';
+export * from './VcsDashboard';

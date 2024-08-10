@@ -999,7 +999,7 @@
 
 ### Minor Changes
 
-- ead285b9e4: **BREAKING**: Changed the casing of all exported types to have a lowercase "h" in "github". E.g. "GitHubIssuesPage" was renamed to "GithubIssuesPage". Please rename your imports where necessary.
+- ead285b9e4: **BREAKING**: Changed the casing of all exported types to have a lowercase "h" in "github". E.g. "VcsDashboardPage" was renamed to "VcsDashboardPage". Please rename your imports where necessary.
 
 ### Patch Changes
 
@@ -1032,7 +1032,7 @@
 
 ### Minor Changes
 
-- ead285b9e4: **BREAKING**: Changed the casing of all exported types to have a lowercase "h" in "github". E.g. "GitHubIssuesPage" was renamed to "GithubIssuesPage". Please rename your imports where necessary.
+- ead285b9e4: **BREAKING**: Changed the casing of all exported types to have a lowercase "h" in "github". E.g. "VcsDashboardPage" was renamed to "VcsDashboardPage". Please rename your imports where necessary.
 
 ### Patch Changes
 

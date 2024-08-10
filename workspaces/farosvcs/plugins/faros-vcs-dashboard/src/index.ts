@@ -15,13 +15,9 @@
  */
 
 export {
-  githubIssuesPlugin,
-  GithubIssuesPage,
+  farosVcsDashboardPlugin,
+  VcsDashboardPage,
   GithubIssuesCard,
 } from './plugin';
-export type { GithubIssuesProps } from './components/GithubIssues';
-export type {
-  GithubIssuesFilters,
-  GithubIssuesOrdering,
-  GithubIssuesByRepoOptions,
-} from './api/githubIssuesApi';
+
+

@@ -21,13 +21,13 @@ import {
   catalogApiRef,
   EntityProvider,
 } from '@backstage/plugin-catalog-react';
-import { githubIssuesPlugin, GithubIssuesPage } from '../src';
+import { farosVcsDashboardPlugin, VcsDashboardPage } from '../src';
 import { GithubIssuesApi, githubIssuesApiRef } from '../src/api';
 
 import testData from './__fixtures__/component-issues-data.json';
 
 createDevApp()
-  .registerPlugin(githubIssuesPlugin)
+  .registerPlugin(farosVcsDashboardPlugin)
   .registerApi({
     api: githubIssuesApiRef,
     deps: {},
@@ -59,7 +59,7 @@ createDevApp()
           kind: 'Component',
         }}
       >
-        <GithubIssuesPage />
+        <VcsDashboardPage />
       </EntityProvider>
     ),
   })

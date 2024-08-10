@@ -45,10 +45,10 @@ export interface GithubIssuesOrdering {
 }
 
 // @public (undocumented)
-export const GithubIssuesPage: (props: GithubIssuesProps) => JSX_2.Element;
+export const VcsDashboardPage: (props: GithubIssuesProps) => JSX_2.Element;
 
 // @public (undocumented)
-export const githubIssuesPlugin: BackstagePlugin<
+export const farosVcsDashboardPlugin: BackstagePlugin<
   {
     root: RouteRef<undefined>;
   },

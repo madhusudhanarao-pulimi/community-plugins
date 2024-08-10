@@ -27,7 +27,7 @@ import { githubIssuesApi, githubIssuesApiRef } from './api';
 import { rootRouteRef } from './routes';
 
 /** @public */
-export const githubIssuesPlugin = createPlugin({
+export const farosVcsDashboardPlugin = createPlugin({
   id: 'faros-vcs-dashboard',
   apis: [
     createApiFactory({
@@ -47,21 +47,21 @@ export const githubIssuesPlugin = createPlugin({
 });
 
 /** @public */
-export const GithubIssuesCard = githubIssuesPlugin.provide(
+export const GithubIssuesCard = farosVcsDashboardPlugin.provide(
   createComponentExtension({
     name: 'GithubIssuesCard',
     component: {
-      lazy: () => import('./components/GithubIssues').then(m => m.GithubIssues),
+      lazy: () => import('./components/VcsDashboard').then(m => m.VcsDashboard),
     },
   }),
 );
 
 /** @public */
-export const GithubIssuesPage = githubIssuesPlugin.provide(
+export const VcsDashboardPage = farosVcsDashboardPlugin.provide(
   createRoutableExtension({
-    name: 'GithubIssuesPage',
+    name: 'VcsDashboardPage',
     component: () =>
-      import('./components/GithubIssues').then(m => m.GithubIssues),
+      import('./components/VcsDashboard').then(m => m.VcsDashboard),
     mountPoint: rootRouteRef,
   }),
 );

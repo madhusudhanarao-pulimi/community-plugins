@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import { githubIssuesPlugin } from './plugin';
+import { farosVcsDashboardPlugin } from './plugin';
 
 describe('faros-vcs-dashboard', () => {
   it('should export plugin', () => {
-    expect(githubIssuesPlugin).toBeDefined();
+    expect(farosVcsDashboardPlugin).toBeDefined();
   });
 });
