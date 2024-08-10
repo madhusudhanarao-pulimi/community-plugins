@@ -68,6 +68,7 @@ export const useGetIssuesByRepoFromGithub = (
     retry,
   } = useAsyncRetry(async () => {
 
+    if (repos.length > 0) {
     const response = await fetch(
       "https://prod.api.faros.ai/graphs/default/graphql",  { 
           method: 'post', 
@@ -95,9 +96,9 @@ export const useGetIssuesByRepoFromGithub = (
     //   );
     // }
     return { isLoading, pullrequestData, retry };
+      }
 
-
-    //return {};
+    return {};
   }, [repos]);
 
   return { isLoading, prData: PullRequest, retry };
