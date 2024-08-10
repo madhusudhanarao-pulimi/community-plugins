@@ -83,7 +83,7 @@ export const useGetIssuesByRepoFromGithub = (
       console.log('repos');
       console.log(repos);
       let repoFullName  = repos[0].name;
-      let repoName  = repoFullName.split('/')[1];
+      let repoName  = (repoFullName.split('/').length>1 ? repoFullName.split('/')[1] : repoFullName);
       let pullrequestData = applyRepoFilterForPRData(prData.data.vcs_PullRequest, repoName);
 
     // if (repos.length > 0) {
