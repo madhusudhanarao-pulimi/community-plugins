@@ -1,4 +1,4 @@
-# @backstage-community/plugin-github-issues
+# @backstage-community/plugin-faros-vcs-dashboard
 
 ## 0.4.3
 
@@ -54,7 +54,7 @@
 
 ### Minor Changes
 
-- bc97524: Added ESLint rule `no-top-level-material-ui-4-imports` in the `github-issues` plugin to migrate the Material UI imports.
+- bc97524: Added ESLint rule `no-top-level-material-ui-4-imports` in the `faros-vcs-dashboard` plugin to migrate the Material UI imports.
 
 ### Patch Changes
 
@@ -71,7 +71,7 @@
 
 ### Minor Changes
 
-- bc97524: Added ESLint rule `no-top-level-material-ui-4-imports` in the `github-issues` plugin to migrate the Material UI imports.
+- bc97524: Added ESLint rule `no-top-level-material-ui-4-imports` in the `faros-vcs-dashboard` plugin to migrate the Material UI imports.
 
 ### Patch Changes
 

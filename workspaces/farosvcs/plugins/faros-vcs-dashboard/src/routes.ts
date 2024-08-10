@@ -13,11 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { createRouteRef } from '@backstage/core-plugin-api';
 
-import { githubIssuesPlugin } from './plugin';
-
-describe('github-issues', () => {
-  it('should export plugin', () => {
-    expect(githubIssuesPlugin).toBeDefined();
-  });
+export const rootRouteRef = createRouteRef({
+  id: 'faros-vcs-dashboard',
 });

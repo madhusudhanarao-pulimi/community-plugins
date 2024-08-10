@@ -28,7 +28,7 @@ import { rootRouteRef } from './routes';
 
 /** @public */
 export const githubIssuesPlugin = createPlugin({
-  id: 'github-issues',
+  id: 'faros-vcs-dashboard',
   apis: [
     createApiFactory({
       api: githubIssuesApiRef,

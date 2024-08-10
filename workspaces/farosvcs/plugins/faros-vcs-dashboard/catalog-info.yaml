@@ -1,8 +1,8 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: backstage-plugin-github-issues
-  title: '@backstage-community/plugin-github-issues'
+  name: backstage-plugin-faros-vcs-dashboard
+  title: '@backstage-community/plugin-faros-vcs-dashboard'
 spec:
   lifecycle: experimental
   type: backstage-frontend-plugin

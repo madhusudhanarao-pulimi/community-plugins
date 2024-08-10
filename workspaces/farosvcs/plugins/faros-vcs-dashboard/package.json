@@ -1,11 +1,11 @@
 {
-  "name": "@backstage-community/plugin-github-issues",
+  "name": "@backstage-community/plugin-faros-vcs-dashboard",
   "version": "0.4.3",
   "backstage": {
     "role": "frontend-plugin",
-    "pluginId": "github-issues",
+    "pluginId": "faros-vcs-dashboard",
     "pluginPackages": [
-      "@backstage-community/plugin-github-issues"
+      "@backstage-community/plugin-faros-vcs-dashboard"
     ]
   },
   "publishConfig": {
@@ -17,7 +17,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/backstage/community-plugins",
-    "directory": "workspaces/github-issues/plugins/github-issues"
+    "directory": "workspaces/farosvcs/plugins/faros-vcs-dashboard"
   },
   "license": "Apache-2.0",
   "sideEffects": false,
