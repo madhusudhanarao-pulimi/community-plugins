@@ -23,23 +23,13 @@ import {
   errorApiRef,
   githubAuthApiRef,
 } from '@backstage/core-plugin-api';
-import { githubIssuesApi, githubIssuesApiRef } from './api';
 import { rootRouteRef } from './routes';
 
 /** @public */
 export const farosVcsDashboardPlugin = createPlugin({
   id: 'faros-vcs-dashboard',
   apis: [
-    createApiFactory({
-      api: githubIssuesApiRef,
-      deps: {
-        configApi: configApiRef,
-        githubAuthApi: githubAuthApiRef,
-        errorApi: errorApiRef,
-      },
-      factory: ({ configApi, githubAuthApi, errorApi }) =>
-        githubIssuesApi(githubAuthApi, configApi, errorApi),
-    }),
+   
   ],
   routes: {
     root: rootRouteRef,

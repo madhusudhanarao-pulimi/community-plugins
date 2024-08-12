@@ -22,10 +22,6 @@ import RefreshIcon from '@material-ui/icons/Refresh';
 import { useEntityGithubRepositories } from '../../hooks/useEntityGithubRepositories';
 import { useGetIssuesByRepoFromGithub, PullRequest } from '../../hooks/useGetPullrequestsByRepoFromFaros';
 import { NoRepositoriesInfo } from './NoRepositoriesInfo';
-import type {
-  GithubIssuesFilters,
-  GithubIssuesOrdering,
-} from '../../api/githubIssuesApi';
 import moment from 'moment';
 import CanvasJSReact from '@canvasjs/react-charts';
 import {
@@ -46,12 +42,6 @@ import { Typography, Grid } from '@material-ui/core';
 var CanvasJS = CanvasJSReact.CanvasJS;
 var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
-export type GithubIssuesProps = {
-  itemsPerPage?: number;
-  itemsPerRepo?: number;
-  filterBy?: GithubIssuesFilters;
-  orderBy?: GithubIssuesOrdering;
-};
 
 export interface HookResponse {
  isLoading:boolean,
@@ -252,14 +242,13 @@ function GeneratePRCountByWeekChart(prData)
 }
 
 
-export const VcsDashboard = (props: GithubIssuesProps) => {
-  const { itemsPerPage = 10, itemsPerRepo = 40, filterBy, orderBy } = props;
+export const VcsDashboard = () => {
   const { repositories } = useEntityGithubRepositories();
   const {
     isLoading,
     prData,
     retry,
-  } = useGetIssuesByRepoFromGithub(repositories, itemsPerRepo, {  filterBy, orderBy,});
+  } = useGetIssuesByRepoFromGithub(repositories);
 
   console.log(" Inside GithubIssues : ");
   //const prData1 =  prData.json();

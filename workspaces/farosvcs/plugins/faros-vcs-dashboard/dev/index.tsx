@@ -22,20 +22,11 @@ import {
   EntityProvider,
 } from '@backstage/plugin-catalog-react';
 import { farosVcsDashboardPlugin, VcsDashboardPage } from '../src';
-import { GithubIssuesApi, githubIssuesApiRef } from '../src/api';
 
 import testData from './__fixtures__/component-issues-data.json';
 
 createDevApp()
   .registerPlugin(farosVcsDashboardPlugin)
-  .registerApi({
-    api: githubIssuesApiRef,
-    deps: {},
-    factory: () =>
-      ({
-        fetchIssuesByRepoFromGithub: async () => testData,
-      } as GithubIssuesApi),
-  })
   .registerApi({
     api: catalogApiRef,
     deps: {},

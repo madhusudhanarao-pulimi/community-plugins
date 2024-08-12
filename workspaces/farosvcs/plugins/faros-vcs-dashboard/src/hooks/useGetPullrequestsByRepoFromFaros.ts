@@ -18,9 +18,8 @@ import { useApi, configApiRef } from '@backstage/core-plugin-api';
 import useAsyncRetry from 'react-use/esm/useAsyncRetry';
 import {
   Repository,
-  githubIssuesApiRef,
-  GithubIssuesByRepoOptions,
-} from '../api';
+
+} from '../modals/repositoryModal';
 
 // # start calculate avg PR cycle time by weekly
 export interface PullRequest {
@@ -55,10 +54,7 @@ function applyRepoFilterForPRData(prData: PullRequest[], filter_reponame: string
 
 export const useGetIssuesByRepoFromGithub = (
   repos: Array<Repository>,
-  itemsPerRepo: number,
-  options?: GithubIssuesByRepoOptions,
 ) => {
-  const githubIssuesApi = useApi(githubIssuesApiRef);
   const config = useApi(configApiRef);
   let accessToken = 'f3LeyW8zJ7kO8XLAginK8HKV2hAuZfGe';
   if (config.has('restAPI.farosAPIAccessToken')) {

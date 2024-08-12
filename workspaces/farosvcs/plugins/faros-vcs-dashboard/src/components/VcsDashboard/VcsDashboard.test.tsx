@@ -23,7 +23,7 @@ import {
 } from '@backstage/plugin-catalog-react';
 import { Entity } from '@backstage/catalog-model';
 import { GithubIssuesApi, githubIssuesApiRef, Issue } from '../../api';
-import { GithubIssues } from './GithubIssues';
+import { VcsDashboard } from './VcsDashboard';
 
 const getTestIssue = (overwrites: Partial<Issue> = {}): { node: Issue } => ({
   node: {
