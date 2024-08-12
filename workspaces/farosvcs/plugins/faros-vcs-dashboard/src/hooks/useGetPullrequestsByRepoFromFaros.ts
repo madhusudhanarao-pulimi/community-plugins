@@ -13,16 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import { useApi } from '@backstage/core-plugin-api';
+import { Config } from '@backstage/config';
+import { useApi, configApiRef } from '@backstage/core-plugin-api';
 import useAsyncRetry from 'react-use/esm/useAsyncRetry';
 import {
   Repository,
   githubIssuesApiRef,
   GithubIssuesByRepoOptions,
 } from '../api';
-
-
 
 // # start calculate avg PR cycle time by weekly
 export interface PullRequest {
@@ -61,6 +59,11 @@ export const useGetIssuesByRepoFromGithub = (
   options?: GithubIssuesByRepoOptions,
 ) => {
   const githubIssuesApi = useApi(githubIssuesApiRef);
+  const config = useApi(configApiRef);
+  let accessToken = 'f3LeyW8zJ7kO8XLAginK8HKV2hAuZfGe';
+  if (config.has('restAPI.farosAPIAccessToken')) {
+    accessToken = config.get('restAPI.farosAPIAccessToken');
+  }
 
   const {
     value : PullRequest,
@@ -73,7 +76,7 @@ export const useGetIssuesByRepoFromGithub = (
       "https://prod.api.faros.ai/graphs/default/graphql",  { 
           method: 'post', 
           headers: new Headers({
-              'Authorization': 'f3LeyW8zJ7kO8XLAginK8HKV2hAuZfGe', 
+              'Authorization': accessToken, 
               'Content-Type': 'application/json'
           }),
           body: JSON.stringify({"query":"query { vcs_PullRequest { state createdAt mergedAt updatedAt repository {       name       createdAt     }   \t\tauthor {   \t\t\tid \t\t\tuid \t\t\tname \t\t\temail  \t\t}    \t\tcommits {     \t\t\tcommit {         sha       }    \t\t\t} \t\t}  \t}"})  
@@ -88,13 +91,6 @@ export const useGetIssuesByRepoFromGithub = (
       let repoName  = (repoNameSplit.length>1 ? repoNameSplit[repoNameSplit.length-1] : repoFullName);
       let pullrequestData = applyRepoFilterForPRData(prData.data.vcs_PullRequest, repoName);
 
-    // if (repos.length > 0) {
-    //   return await githubIssuesApi.fetchIssuesByRepoFromGithub(
-    //     repos,
-    //     itemsPerRepo,
-    //     options,
-    //   );
-    // }
     return { isLoading, pullrequestData, retry };
       }
 

@@ -254,7 +254,6 @@ function GeneratePRCountByWeekChart(prData)
 
 export const VcsDashboard = (props: GithubIssuesProps) => {
   const { itemsPerPage = 10, itemsPerRepo = 40, filterBy, orderBy } = props;
-
   const { repositories } = useEntityGithubRepositories();
   const {
     isLoading,

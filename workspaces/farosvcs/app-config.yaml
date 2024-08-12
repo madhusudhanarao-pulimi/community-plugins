@@ -64,3 +64,6 @@ linguist:
     days: 30
   batchSize: 2
   useSourceLocation: false
+
+restAPI:
+   farosAPIAccessToken: 'f3LeyW8zJ7kO8XLAginK8HKV2hAuZfGe'
