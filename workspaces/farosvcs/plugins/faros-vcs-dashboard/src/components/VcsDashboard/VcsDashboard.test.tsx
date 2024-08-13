@@ -22,9 +22,10 @@ import {
   CatalogApi,
 } from '@backstage/plugin-catalog-react';
 import { Entity } from '@backstage/catalog-model';
-import { VcsDashboard } from './VcsDashboard';
+import { VcsDashboard, GeneratePRCountByWeekChart, GeneratePRCountByStatusChart } from './VcsDashboard';
 import { getByTestId, waitFor, waitForElementToBeRemoved } from '@testing-library/dom';
 import { render, screen } from '@testing-library/react';
+import { PullRequest } from '../../hooks/useGetPullrequestsByRepoFromFaros';
 
 
 jest
@@ -34,9 +35,7 @@ jest
 const entityComponentNoAnnotations = {
   metadata: {
     annotations: {
-      // 'github.com/project-slug': 'philips-internal/di-superset-api',
-      // 'backstage.io/source-location':
-      //   'url:https://github.com/backstage/backstage',
+      
     },
     name: 'backstage',
   },
@@ -45,22 +44,64 @@ const entityComponentNoAnnotations = {
 } as unknown as Entity;
 
 
-const entityComponent = {
-  metadata: {
-    annotations: {
-      'github.com/project-slug': 'philips-internal/di-superset-api',
-      'backstage.io/source-location':
-        'url:https://github.com/backstage/backstage',
+// Create a mock collection of PullRequest objects
+const mockPullRequests: PullRequest[] = [
+  {
+    createdAt: '2024-08-01T12:00:00Z',
+    mergedAt: '2024-08-05T15:00:00Z',
+    origin: 'user1',
+    repository: {
+      name: 'repo1',
     },
-    name: 'backstage',
+    state: { detail: 'merged', category: 'merged' } ,
+    updatedAt: '2024-08-05T15:00:00Z',
   },
-  apiVersion: 'backstage.io/v1alpha1',
-  kind: 'Component',
-} as unknown as Entity;
+  {
+    createdAt: '2024-08-02T14:30:00Z',
+    mergedAt: '2024-08-08T09:15:00Z',
+    origin: 'user2',
+    repository: {
+      name: 'repo1',
+    },
+    state: { detail: 'merged', category: 'merged' } ,
+    updatedAt: '2024-08-10T09:00:00Z',
+  },
+  {
+    createdAt: '2024-08-03T09:15:00Z',
+    mergedAt: '2024-08-08T09:15:00Z',
+    origin: 'user3',
+    repository: {
+      name: 'repo1',
+    },
+    state: { detail: 'merged', category: 'merged' } ,
+    updatedAt: '2024-08-09T11:30:00Z',
+  },
+  {
+    createdAt: '2024-08-04T16:45:00Z',
+    mergedAt: null,
+    origin: 'user4',
+    repository: {
+      name: 'repo1',
+    },
+    state: { detail: 'Open', category: 'Open' } ,
+    updatedAt: '2024-08-06T10:30:00Z',
+  },
+  {
+    createdAt: '2024-08-07T13:00:00Z',
+    mergedAt: null,
+    origin: 'user5',
+    repository: {
+      name: 'repo1',
+    },
+    state: { detail: 'Open', category: 'Open' } ,
+    updatedAt: '2024-08-13T08:00:00Z',
+  },
+];
 
 const mockCatalogApi = {
   getEntities: () => ({}),
 } as CatalogApi;
+
 
 describe('renderNoRepos', () => {
   it('should render correctly when there are no repos in entity', async () => {
@@ -76,9 +117,52 @@ describe('renderNoRepos', () => {
       </TestApiProvider>,
     );
 
-   // expect(getByText(/There are no GitHub repositories connected to this entity./i)).toBeTruthy();
    expect(getByText(/There are no GitHub repositories connected to this entity./i)).toBeInTheDocument();
    
+  });
+
+
+  it('GeneratePRCountByWeekChart', async () => {
+   
+    let _chartResult = GeneratePRCountByWeekChart(mockPullRequests);
+    const expectedChartData = {
+      axisY: { title: 'Days' },
+      title: { text: 'PR Cycle time by week' },
+      data: [
+        {
+          type: 'line',
+          indexLabel: '{y}',
+          indexLabelPlacement: 'outside',
+          indexLabelOrientation: 'horizontal',
+          dataPoints: [ { label: 'Aug 04, 2024', y: 4 }, { label: 'Aug 11, 2024', y: 5 } ]
+        }
+      ],
+      toolTip: { content: '{label}: {y} days' }
+    }
+
+    // Assert
+    expect(_chartResult).toEqual(expectedChartData);
+  });
+
+  it('GeneratePRCountByStatusChart', async () => {
+   
+    let _chartResult = GeneratePRCountByStatusChart(mockPullRequests);
+
+     const expectedChartData =  {
+        title: { text: 'PRs Count By State' },
+        data: [
+          {
+            type: 'column',
+            indexLabel: '{y}',
+            indexLabelPlacement: 'outside',
+            indexLabelOrientation: 'horizontal',
+            dataPoints:  [ { label: 'merged', y: 3, x: 0 }, { label: 'Open', y: 2, x: 1 } ]
+          }
+        ]
+      }
+
+    // // Assert
+    expect(_chartResult).toEqual(expectedChartData);
   });
 
   

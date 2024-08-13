@@ -80,7 +80,7 @@ type datapointWithX = {
   y: number;
 };
 
-function GeneratePRCountByStatusChart(prData)
+export function GeneratePRCountByStatusChart(prData)
 {
   const categoryCounts = countByCategory(prData);
       console.log('Group by state: ');
@@ -200,7 +200,7 @@ type datapoint = {
 };
 
 
-function GeneratePRCountByWeekChart(prData)
+export function GeneratePRCountByWeekChart(prData)
 {
   let averageTimes = calculateAveragePRTimeByWeek(prData);
   averageTimes =  averageTimes.sort((a, b) => {

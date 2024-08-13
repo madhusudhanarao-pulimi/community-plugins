@@ -24,7 +24,7 @@ import {
 // # start calculate avg PR cycle time by weekly
 export interface PullRequest {
   createdAt: string;
-  mergedAt: string;
+  mergedAt: string | null;
   origin: string;
   repository: {
     name: string;
