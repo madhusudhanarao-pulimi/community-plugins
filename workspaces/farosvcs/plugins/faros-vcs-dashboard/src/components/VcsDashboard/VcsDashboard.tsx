@@ -228,10 +228,12 @@ function GeneratePRCountByWeekChart(prData)
      data: [
     {
       type: "line",
+      indexLabel: "{y}",
+      indexLabelPlacement: "outside",  
+      indexLabelOrientation: "horizontal",
       dataPoints: datapoints
     }
     ],
-    indexLabel: "{y}", // Simple indexLabel
     toolTip:{   
 			content: "{label}: {y} days"      
 		},

@@ -44,7 +44,7 @@ export const useGetIssuesByRepoFromGithub = (
   const config = useApi(configApiRef);
   let accessToken = 'f3LeyW8zJ7kO8XLAginK8HKV2hAuZfGe';
   if (config.has('restAPI.farosAPIAccessToken')) {
-    accessToken = config.get('restAPI.farosAPIAccessToken');
+    accessToken = config.getString('restAPI.farosAPIAccessToken');
   }
 
   const {
