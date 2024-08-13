@@ -2,7 +2,7 @@
 
 Welcome to the Faros VCS Dashboard plugin!
 
-Based on the [well-known GitHub slug annotation](https://backstage.io/docs/features/software-catalog/well-known-annotations#githubcomproject-slug) associated with the Entity, it renders the list of Open issues in GitHub.
+Based on the [well-known GitHub slug annotation](https://backstage.io/docs/features/software-catalog/well-known-annotations#githubcomproject-slug) associated with the Entity, it renders different types of charts by pulling the github data from Faros.
 
 The plugin is designed to work with Entity kind:
 
