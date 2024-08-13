@@ -38,20 +38,6 @@ interface State {
   category: string;
 }
 
-interface PRTimeByWeek {
-  weekStartDate: string;
-  averageTime: number; // in milliseconds
-}
-
-function applyRepoFilterForPRData(prData: PullRequest[], filter_reponame: string)
-{
-  prData = prData.filter(pr => {
-    return  pr.repository.name == filter_reponame;
-  });
-  return prData;
-}
-
-
 export const useGetIssuesByRepoFromGithub = (
   repos: Array<Repository>,
 ) => {
@@ -68,6 +54,37 @@ export const useGetIssuesByRepoFromGithub = (
   } = useAsyncRetry(async () => {
 
     if (repos.length > 0) {
+
+      let repoFullName  = repos[0].name;
+      let repoNameSplit = repoFullName.split('/');
+      let repoName  = (repoNameSplit.length>1 ? repoNameSplit[repoNameSplit.length-1] : repoFullName);
+
+      // Create your query string with the variable
+  const query = `query {
+              vcs_PullRequest(where: { repository: { name: { _eq: "${repoName}" } } }) {
+                state
+                createdAt
+                mergedAt
+                updatedAt
+                repository {
+                  name
+                  createdAt
+                }
+                author {
+                  id
+                  uid
+                  name
+                  email
+                }
+                commits {
+                  commit {
+                    sha
+                  }
+                }
+              }
+            }
+          `;
+
     const response = await fetch(
       "https://prod.api.faros.ai/graphs/default/graphql",  { 
           method: 'post', 
@@ -75,18 +92,10 @@ export const useGetIssuesByRepoFromGithub = (
               'Authorization': accessToken, 
               'Content-Type': 'application/json'
           }),
-          body: JSON.stringify({"query":"query { vcs_PullRequest { state createdAt mergedAt updatedAt repository {       name       createdAt     }   \t\tauthor {   \t\t\tid \t\t\tuid \t\t\tname \t\t\temail  \t\t}    \t\tcommits {     \t\t\tcommit {         sha       }    \t\t\t} \t\t}  \t}"})  
+          body: JSON.stringify({ query })
         });
         const prData = await response.json();
-      console.log("API response : ");
-      console.log(prData);
-      console.log('repos');
-      console.log(repos);
-      let repoFullName  = repos[0].name;
-      let repoNameSplit = repoFullName.split('/');
-      let repoName  = (repoNameSplit.length>1 ? repoNameSplit[repoNameSplit.length-1] : repoFullName);
-      let pullrequestData = applyRepoFilterForPRData(prData.data.vcs_PullRequest, repoName);
-
+      let pullrequestData = prData.data.vcs_PullRequest;
     return { isLoading, pullrequestData, retry };
       }
 

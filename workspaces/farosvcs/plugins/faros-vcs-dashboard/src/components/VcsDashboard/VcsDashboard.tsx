@@ -277,9 +277,9 @@ export const VcsDashboard = () => {
   // console.log(prData);
   // console.log(isLoading);
 
-  if (!repositories.length) {
-    return <NoRepositoriesInfo />;
-  }
+  // if (!repositories.length) {
+  //   return <NoRepositoriesInfo />;
+  // }
 
   return (
     <Page themeId="tool">

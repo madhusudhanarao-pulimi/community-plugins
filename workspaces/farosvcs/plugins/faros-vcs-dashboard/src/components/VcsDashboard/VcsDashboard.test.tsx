@@ -22,52 +22,33 @@ import {
   CatalogApi,
 } from '@backstage/plugin-catalog-react';
 import { Entity } from '@backstage/catalog-model';
-import { GithubIssuesApi, githubIssuesApiRef, Issue } from '../../api';
 import { VcsDashboard } from './VcsDashboard';
+import { getByTestId, waitFor, waitForElementToBeRemoved } from '@testing-library/dom';
+import { render, screen } from '@testing-library/react';
 
-const getTestIssue = (overwrites: Partial<Issue> = {}): { node: Issue } => ({
-  node: {
-    ...{
-      assignees: {
-        edges: [
-          {
-            node: {
-              avatarUrl:
-                'https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/1112.jpg',
-              login: 'worthless-horse',
-            },
-          },
-        ],
-      },
-      author: {
-        login: 'next-dog',
-      },
-      repository: {
-        nameWithOwner: 'backstage/backstage',
-      },
-      title: 'quasi labore qui',
-      url: 'http://flowery-muscatel.net',
-      participants: {
-        totalCount: 3,
-      },
-      updatedAt: '2022-05-02T09:46:35.885Z',
-      createdAt: '2022-06-03T07:11:22.320Z',
-      comments: {
-        totalCount: 6,
-      },
-    },
-    ...overwrites,
-  },
-});
 
 jest
   .useFakeTimers()
   .setSystemTime(new Date('2020-04-20T08:15:47.614Z').getTime());
 
+const entityComponentNoAnnotations = {
+  metadata: {
+    annotations: {
+      // 'github.com/project-slug': 'philips-internal/di-superset-api',
+      // 'backstage.io/source-location':
+      //   'url:https://github.com/backstage/backstage',
+    },
+    name: 'backstage',
+  },
+  apiVersion: 'backstage.io/v1alpha1',
+  kind: 'Component',
+} as unknown as Entity;
+
+
 const entityComponent = {
   metadata: {
     annotations: {
-      'github.com/project-slug': 'backstage/backstage',
+      'github.com/project-slug': 'philips-internal/di-superset-api',
       'backstage.io/source-location':
         'url:https://github.com/backstage/backstage',
     },
@@ -81,82 +62,24 @@ const mockCatalogApi = {
   getEntities: () => ({}),
 } as CatalogApi;
 
-describe('GithubIssues', () => {
-  it('should render correctly when there are no issues in GitHub', async () => {
-    const mockApi = {
-      fetchIssuesByRepoFromGithub: async () => ({
-        backstage: {
-          issues: {
-            totalCount: 0,
-            edges: [],
-          },
-        },
-      }),
-    } as GithubIssuesApi;
-
+describe('renderNoRepos', () => {
+  it('should render correctly when there are no repos in entity', async () => {
     const apis = [
-      [githubIssuesApiRef, mockApi],
       [catalogApiRef, mockCatalogApi],
     ] as const;
 
-    const { getByTestId } = await renderInTestApp(
+    const { getByText } = await renderInTestApp(
       <TestApiProvider apis={apis}>
-        <EntityProvider entity={entityComponent}>
-          <GithubIssues />
+        <EntityProvider entity={entityComponentNoAnnotations}>
+          <VcsDashboard></VcsDashboard>
         </EntityProvider>
       </TestApiProvider>,
     );
 
-    expect(getByTestId('no-issues-msg')).toHaveTextContent(
-      'Hurray! No Issues 🚀',
-    );
+   // expect(getByText(/There are no GitHub repositories connected to this entity./i)).toBeTruthy();
+   expect(getByText(/There are no GitHub repositories connected to this entity./i)).toBeInTheDocument();
+   
   });
 
-  it('should render correctly', async () => {
-    const testIssue = getTestIssue({
-      createdAt: '2020-04-19T10:15:47.614Z',
-      updatedAt: '2020-04-20T00:15:47.614Z',
-    });
-
-    const mockApi = {
-      fetchIssuesByRepoFromGithub: async () => ({
-        backstage: {
-          issues: {
-            totalCount: 1,
-            edges: [testIssue],
-          },
-        },
-      }),
-    } as GithubIssuesApi;
-    const apis = [
-      [githubIssuesApiRef, mockApi],
-      [catalogApiRef, mockCatalogApi],
-    ] as const;
-
-    const { getByText, getByTestId } = await renderInTestApp(
-      <TestApiProvider apis={apis}>
-        <EntityProvider entity={entityComponent}>
-          <GithubIssues />
-        </EntityProvider>
-      </TestApiProvider>,
-    );
-
-    getByText('All repositories (1 Issue)');
-
-    expect(getByTestId(`issue-${testIssue.node.url}`)).toHaveTextContent(
-      testIssue.node.title,
-    );
-
-    expect(getByTestId(`issue-${testIssue.node.url}`)).toHaveTextContent(
-      testIssue.node.repository.nameWithOwner,
-    );
-
-    expect(getByTestId(`issue-${testIssue.node.url}`)).toHaveTextContent(
-      `Created at: 22 hours ago by ${testIssue.node.author.login}`,
-    );
-
-    expect(getByTestId(`issue-${testIssue.node.url}`)).toHaveTextContent(
-      `Last update at: 8 hours ago`,
-    );
-  });
+  
 });
