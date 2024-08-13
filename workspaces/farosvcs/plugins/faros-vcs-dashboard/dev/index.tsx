@@ -21,9 +21,7 @@ import {
   catalogApiRef,
   EntityProvider,
 } from '@backstage/plugin-catalog-react';
-import { farosVcsDashboardPlugin, VcsDashboardPage } from '../src';
-
-import testData from './__fixtures__/component-issues-data.json';
+import { farosVcsDashboardPlugin, VcsDashboardPage } from '../src/plugin';
 
 createDevApp()
   .registerPlugin(farosVcsDashboardPlugin)
@@ -36,7 +34,6 @@ createDevApp()
       } as CatalogApi),
   })
   .addPage({
-    title: 'Component Issues',
     element: (
       <EntityProvider
         entity={{
@@ -53,5 +50,8 @@ createDevApp()
         <VcsDashboardPage />
       </EntityProvider>
     ),
+    title: 'Root Page',
+    path: '/faros-vcs-dashboard',
   })
   .render();
+
